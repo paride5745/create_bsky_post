@@ -59,8 +59,7 @@ func main() {
 	if imagePath != "" {
 		embed, err = post.UploadImages(ctx, pdsURL, session.AccessJwt, []string{imagePath}, altText)
 		if err != nil {
-			fmt.Printf("Failed to upload images: %v\n", err)
-			os.Exit(1)
+			log.Fatalf("Failed to upload images: %v\n", err)
 		}
 	}
 
@@ -68,8 +67,7 @@ func main() {
 	if customDateString != "" {
 		customDate, err = parseCustomDate(customDateString)
 		if err != nil {
-			fmt.Printf("Invalid custom date format: %v\n", err)
-			os.Exit(1)
+			log.Fatalf("Invalid custom date format: %v\n", err)
 		}
 	} else {
 		customDate = time.Now() // Default to current time if custom date is not provided
