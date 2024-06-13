@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
+	"time"
 
 	"create_bsky_post/pkg/auth"
 	"create_bsky_post/pkg/parser"
@@ -12,13 +14,15 @@ import (
 )
 
 func main() {
-	var handle, password, text, parentURI, imagePath, altText string
+	var handle, password, text, parentURI, imagePath, altText, customDateString string
 	flag.StringVar(&handle, "handle", "", "BSky handle")
 	flag.StringVar(&password, "password", "", "BSky password")
 	flag.StringVar(&text, "text", "", "Text to post")
 	flag.StringVar(&parentURI, "parentURI", "", "Parent URI for reply")
 	flag.StringVar(&imagePath, "imagePath", "", "Path to image")
 	flag.StringVar(&altText, "altText", "", "Alt text for image")
+	flag.StringVar(&customDateString, "customDate", "", "Custom creation date (DD/MM/YYYY hh:mm)")
+
 	flag.Parse()
 
 	if handle == "" || password == "" || text == "" {
@@ -50,14 +54,31 @@ func main() {
 	if imagePath != "" {
 		embed, err = post.UploadImages(ctx, pdsURL, session.AccessJwt, []string{imagePath}, altText)
 		if err != nil {
-			log.Fatalf("Failed to upload images: %v", err)
+			fmt.Printf("Failed to upload images: %v\n", err)
+			os.Exit(1)
 		}
 	}
 
-	result, err := post.PostToBsky(ctx, pdsURL, session.Did, session.AccessJwt, text, facets, parent, embed)
+	var customDate time.Time
+	if customDateString != "" {
+		customDate, err = parseCustomDate(customDateString)
+		if err != nil {
+			fmt.Printf("Invalid custom date format: %v\n", err)
+			os.Exit(1)
+		}
+	} else {
+		customDate = time.Now() // Default to current time if custom date is not provided
+	}
+
+	result, err := post.PostToBsky(context.Background(), pdsURL, session.Did, session.AccessJwt, text, facets, parent, embed, customDate)
 	if err != nil {
 		log.Fatalf("Failed to post: %v", err)
 	}
 
 	fmt.Printf("Post successful: %v\n", result)
+}
+
+func parseCustomDate(dateStr string) (time.Time, error) {
+	layout := "02/01/2006 15:04" // DD/MM/YYYY hh:mm format
+	return time.Parse(layout, dateStr)
 }

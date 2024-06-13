@@ -11,12 +11,11 @@ import (
 	"create_bsky_post/pkg/utils"
 )
 
-func PostToBsky(ctx context.Context, pdsURL, repo, accessToken, text string, facets []utils.Facet, parent map[string]map[string]string, embed map[string]interface{}) (map[string]interface{}, error) {
-	now := time.Now().Format(time.RFC3339)
+func PostToBsky(ctx context.Context, pdsURL, repo, accessToken, text string, facets []utils.Facet, parent map[string]map[string]string, embed map[string]interface{}, customDate time.Time) (map[string]interface{}, error) {
 	post := map[string]interface{}{
 		"$type":     "app.bsky.feed.post",
 		"text":      text,
-		"createdAt": now,
+		"createdAt": customDate.Format(time.RFC3339), // Format customDate as RFC3339 timestamp
 	}
 
 	if len(facets) > 0 {
@@ -65,5 +64,6 @@ func PostToBsky(ctx context.Context, pdsURL, repo, accessToken, text string, fac
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
+
 	return result, nil
 }
