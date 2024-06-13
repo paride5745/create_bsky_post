@@ -25,6 +25,11 @@ func main() {
 
 	flag.Parse()
 
+	// If password is not provided via command line, retrieve from environment variable
+	if password == "" {
+		password = os.Getenv("BSKY_APP_PASSWORD")
+	}
+
 	if handle == "" || password == "" || text == "" {
 		log.Fatalf("handle, password, and text are required")
 	}
