@@ -3,22 +3,8 @@ package utils
 import (
 	"errors"
 	"io"
-	"net/http"
 	"strings"
 )
-
-var HttpClient = &http.Client{}
-
-type Index struct {
-	ByteStart int `json:"byteStart"`
-	ByteEnd   int `json:"byteEnd"`
-}
-
-type Feature struct {
-	Type string `json:"$type"`
-	Did  string `json:"did,omitempty"`
-	Uri  string `json:"uri,omitempty"`
-}
 
 func ParseURI(uri string) (map[string]string, error) {
 	parts := strings.Split(uri, "/")
